@@ -379,7 +379,6 @@ void FaireUneMesureSonore()
       sample_buffer[i] = analogRead(SOUND_SENSOR_PIN);
       //Serial.println(sample_buffer[i]);
     }
-
     
     
     

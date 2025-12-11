@@ -16,8 +16,10 @@ float temperature;
 #define PORT_LED_R PF_1
 #define PORT_LED_B PF_2
 #define PORT_LED_G PF_3
-#define  VCC_MILLIV     3300    /* en entier  */
+#define  VCC_MILLIV     3300 /* en entier  */
+
 #define  VCC_VOLTS      3.3     /* en flotant */
+
 #define  NUM_MAX        4096    
 
 
@@ -29,17 +31,19 @@ float temperature;
 #define TEMPERATURE_PIN PD_1    
 
 // --- CAPTEUR SONORE (MICROPHONE) ---
-#define SOUND_SENSOR_PIN PD_0     
+#define SOUND_SENSOR_PIN PD_3     
 
 // --- PARAMÈTRES CAPTEUR SONORE ---
 #define SAMPLE_WINDOW_MS 50       
-#define NUM_SAMPLES_BUFFER 10 //valeur a modifier pour modifier la taille du tableau des pics de tensions mesuré par le micro    
+#define NUM_SAMPLES_BUFFER 10
 
 int etatBouton; 
 int tensionport; 
 float tension; 
 
-int tensionPotentiometre; 
+int tensionPotentiometre;
+const int Taille_Tableau = 5000;//valeur a modifier pour modifier la taille du tableau des pics de tensions mesuré par le micro    
+ 
 float tensionP; 
 
 
@@ -89,7 +93,7 @@ void  Test_LedTricolore(void);
 float Test_Potentiometre(void);
 short Test_BoutonPoussoir(void);
 void  Test_Temperature(void);
-void  FaireUneMesureSonore(void);
+void  FaireUneMesureSonore();
 
 // Fonction utilitaire pour qsort
 int compare_float(const void *a, const void *b) {
@@ -104,11 +108,9 @@ int compare_float(const void *a, const void *b) {
 void loop()
 {
     // loop juste pour le capteur sonor
-
     static int lastButtonState = HIGH; 
     
     int currentButtonState = digitalRead(buttonPin);
-
     if (currentButtonState == ETAT_APPUYE && lastButtonState != ETAT_APPUYE) 
     {
         // On allume la LED en bleu pendant la mesure
@@ -361,22 +363,54 @@ const char Gnn_myLogo[128*8] = { // code hexa des pixel de 'ecran ( a ce que j'e
 //----------------------------------------------------
 // FONCTION CAPTEUR SONORE 
 //----------------------------------------------------
-void FaireUneMesureSonore(void)
+void FaireUneMesureSonore()
 {
     Serial.println("---------------------------------");
     Serial.print("Lancement d'une salve de ");
-    Serial.print(NUM_SAMPLES_BUFFER);
+    Serial.print(Taille_Tableau);
     Serial.println(" mesures...");
     
     // "Vider le tableau" = On crée un tableau local neuf
-    float sample_buffer[NUM_SAMPLES_BUFFER];
+    int sample_buffer[Taille_Tableau];
+    int sample_buffer2[Taille_Tableau];
+    int sample;
+    
+    for(int i = 0; i < Taille_Tableau; i++){
+      sample_buffer[i] = analogRead(SOUND_SENSOR_PIN);
+      //Serial.println(sample_buffer[i]);
+    }
 
+    
+    
+    
+    Serial.println("Fin de la salve ");
+    for(int j = 0 ; j < 2 ; j++){
+      for(int i = 0; i < Taille_Tableau; i++){
+        Serial.println(sample_buffer[i]);
+      }
+    }
+    /*
+    for(int i = 0; i < Taille_Tableau; i++){
+      sample_buffer2[i] = analogRead(SOUND_SENSOR_PIN);
+      //Serial.println(sample_buffer[i]);
+    }
+    for(int i = 0; i < Taille_Tableau; i++){
+      Serial.println(sample_buffer2[i]);
+    }
+    */
+ 
+    
+      
+    
+    
+    
+    /*
     // Remplir le tableau (mode "bloquant") ---
     for (int i = 0; i < NUM_SAMPLES_BUFFER; i++)
     {
         // On prend UNE mesure d'amplitude pic-à-pic
         unsigned long startTime = millis();
-        int sample;
+        
         int sampleMin = 4095;
         int sampleMax = 0;
 
@@ -461,4 +495,8 @@ void FaireUneMesureSonore(void)
     Serial.print(intensity_W_m2, 12); // Afficher avec 12 décimales
     Serial.println(" W/m^2");
     Serial.println("---------------------------------");
+    */
 }
+
+// for i = 0 -> 10000, valeur lue -> tableau, serial print le tableau 
+// tableau(raw : 0 - 4096 sans traitement)  -> csv 
